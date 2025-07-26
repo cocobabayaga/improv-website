@@ -14,6 +14,6 @@ RUN npm run build
 RUN npm install -g serve
 
 # Serve the Vite build
-CMD ["serve", "-s", "dist", "-l", "0.0.0.0:5713"]
-
+#CMD ["serve", "-s", "dist", "-l", "0.0.0.0:5713"]
+CMD ["npm", "run", "dev", "--", "--host"]
 EXPOSE 5713
