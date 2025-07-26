@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { SceneControls } from './components/SceneControls';
 import './App.css';
 
