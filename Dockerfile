@@ -38,5 +38,9 @@ COPY --from=frontend-builder /frontend/dist ./static
 # Expose port
 EXPOSE 8000
 
+# Healthcheck for container health status
+HEALTHCHECK CMD curl --fail http://localhost:8000/health || exit 1
+
 # Run the application
-CMD ["python", "main.py"]
+# CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
