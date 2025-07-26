@@ -3,6 +3,9 @@ import { SceneState, TokenResponse, TokenResponseSchema } from '../types';
 
 const API_BASE_URL = 'http://localhost:8000/api';
 
+// Audio playback management
+let globalAudioContext: AudioContext | null = null;
+
 export const useImprovScene = () => {
   const [sceneState, setSceneState] = useState<SceneState>({
     status: 'idle',
@@ -39,7 +42,7 @@ export const useImprovScene = () => {
 
     ws.onopen = () => {
       console.log('WebSocket connected to OpenAI');
-      setSceneState(prev => ({ ...prev, status: 'active', isListening: true }));
+      setSceneState((prev: SceneState) => ({ ...prev, status: 'active', isListening: true }));
       
       // Send session configuration
       ws.send(JSON.stringify({
@@ -76,9 +79,9 @@ export const useImprovScene = () => {
             audioArray[i] = (byte2 << 8) | byte1; // Little-endian
           }
           
-          // Create and play audio buffer using current audioContext state
-          if (audioContext && audioContext.state !== 'closed') {
-            const audioBuffer = audioContext.createBuffer(1, audioArray.length, 24000);
+          // Use global audio context for consistent access
+          if (globalAudioContext && globalAudioContext.state !== 'closed') {
+            const audioBuffer = globalAudioContext.createBuffer(1, audioArray.length, 24000);
             const channelData = audioBuffer.getChannelData(0);
             
             // Convert Int16 to Float32 and normalize
@@ -86,9 +89,9 @@ export const useImprovScene = () => {
               channelData[i] = audioArray[i] / 32768.0;
             }
             
-            const source = audioContext.createBufferSource();
+            const source = globalAudioContext.createBufferSource();
             source.buffer = audioBuffer;
-            source.connect(audioContext.destination);
+            source.connect(globalAudioContext.destination);
             source.start();
           }
         } catch (error) {
@@ -97,7 +100,7 @@ export const useImprovScene = () => {
       }
       
       if (data.type === 'response.text.delta') {
-        setSceneState(prev => ({ 
+        setSceneState((prev: SceneState) => ({ 
           ...prev, 
           transcript: prev.transcript + (data.delta || '')
         }));
@@ -106,7 +109,7 @@ export const useImprovScene = () => {
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
-      setSceneState(prev => ({ 
+      setSceneState((prev: SceneState) => ({ 
         ...prev, 
         status: 'error', 
         error: 'Connection failed' 
@@ -115,7 +118,7 @@ export const useImprovScene = () => {
 
     ws.onclose = (event) => {
       console.log('WebSocket disconnected:', event.code, event.reason);
-      setSceneState(prev => ({ ...prev, status: 'idle', isListening: false }));
+      setSceneState((prev: SceneState) => ({ ...prev, status: 'idle', isListening: false }));
     };
 
     return ws;
@@ -131,6 +134,8 @@ export const useImprovScene = () => {
         await context.resume();
       }
       
+      // Store context globally and in state
+      globalAudioContext = context;
       setAudioContext(context);
       
       const source = context.createMediaStreamSource(stream);
@@ -169,7 +174,16 @@ export const useImprovScene = () => {
 
   const startScene = useCallback(async () => {
     try {
-      setSceneState(prev => ({ ...prev, status: 'connecting', error: undefined }));
+      setSceneState((prev: SceneState) => ({ ...prev, status: 'connecting', error: undefined }));
+
+      // Create and activate audio context early (user gesture required)
+      if (!globalAudioContext || globalAudioContext.state === 'closed') {
+        const tempContext = new AudioContext({ sampleRate: 24000 });
+        if (tempContext.state === 'suspended') {
+          await tempContext.resume();
+        }
+        globalAudioContext = tempContext;
+      }
 
       // Get user media
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -195,7 +209,7 @@ export const useImprovScene = () => {
 
     } catch (error) {
       console.error('Failed to start scene:', error);
-      setSceneState(prev => ({ 
+      setSceneState((prev: SceneState) => ({ 
         ...prev, 
         status: 'error', 
         error: error instanceof Error ? error.message : 'Unknown error occurred' 
@@ -205,7 +219,7 @@ export const useImprovScene = () => {
 
   const stopScene = useCallback(() => {
     if (mediaStream) {
-      mediaStream.getTracks().forEach(track => track.stop());
+      mediaStream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
       setMediaStream(null);
     }
 
@@ -217,6 +231,11 @@ export const useImprovScene = () => {
     if (audioContext) {
       audioContext.close();
       setAudioContext(null);
+    }
+
+    if (globalAudioContext) {
+      globalAudioContext.close();
+      globalAudioContext = null;
     }
 
     setSceneState({
