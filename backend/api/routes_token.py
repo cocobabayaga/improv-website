@@ -4,7 +4,10 @@ import httpx
 import time
 from datetime import datetime, timedelta
 from config import settings
+from dotenv import load_dotenv
+import os
 
+load_dotenv("../.env")
 
 router = APIRouter()
 
@@ -14,7 +17,7 @@ class TokenResponse(BaseModel):
     rtc_url: str
     expires_at: str
 
-
+#
 @router.get("/test")
 async def test_endpoint():
     """Test endpoint to verify the API is working"""
@@ -33,8 +36,8 @@ async def create_ephemeral_token():
     """
     try:
         # Hardcode API key for testing - you should use environment variables in production
-        api_key = "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"
-        
+        api_key = os.getenv("OPENAI_API_KEY")
+        print(api_key)
         if not api_key:
             raise HTTPException(status_code=500, detail="OpenAI API key not configured")
         
