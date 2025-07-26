@@ -1,0 +1,39 @@
+[tool.poetry]
+name = "improv-backend"
+version = "0.1.0"
+description = "Voice-driven comedy improv backend with OpenAI Realtime API"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "0.111.1"
+uvicorn = {extras = ["standard"], version = "^0.30.0"}
+websockets = "12.0"
+numpy = "^1.26.0"
+soundfile = "^0.12.1"
+python-multipart = "^0.0.6"
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+pydantic = "^2.5.0"
+httpx = "^0.27.0"
+python-dotenv = "^1.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.0"
+black = "^23.0.0"
+ruff = "^0.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = ["E501"]

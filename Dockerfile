@@ -1,0 +1,42 @@
+# Multi-stage Dockerfile for Improv Voice App
+
+# Stage 1: Build Frontend
+FROM node:20-alpine as frontend-builder
+
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm install
+
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 2: Python Backend
+FROM python:3.11-slim as backend
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN pip install poetry
+
+WORKDIR /app
+
+# Copy backend dependency files
+COPY backend/pyproject.toml backend/poetry.lock* ./
+RUN poetry config virtualenvs.create false \
+    && poetry install --only=main --no-interaction --no-ansi
+
+# Copy backend source
+COPY backend/ ./
+
+# Copy built frontend
+COPY --from=frontend-builder /frontend/dist ./static
+
+# Expose port
+EXPOSE 8000
+
+# Run the application
+CMD ["python", "main.py"]

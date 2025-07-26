@@ -1,0 +1,170 @@
+.scene-controls {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.status-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-light.idle {
+  background-color: #6b7280;
+  animation: none;
+}
+
+.status-light.connecting {
+  background-color: #f59e0b;
+}
+
+.status-light.active {
+  background-color: #10b981;
+}
+
+.status-light.error {
+  background-color: #ef4444;
+}
+
+.status-text {
+  font-weight: 500;
+  color: #374151;
+}
+
+.scene-button {
+  padding: 1rem 2rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 2rem;
+  min-width: 200px;
+}
+
+.scene-button.idle {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.scene-button.idle:hover {
+  background-color: #2563eb;
+}
+
+.scene-button.connecting {
+  background-color: #f59e0b;
+  color: white;
+  cursor: not-allowed;
+}
+
+.scene-button.active {
+  background-color: #ef4444;
+  color: white;
+}
+
+.scene-button.active:hover {
+  background-color: #dc2626;
+}
+
+.scene-button.error {
+  background-color: #6b7280;
+  color: white;
+}
+
+.scene-button.error:hover {
+  background-color: #4b5563;
+}
+
+.scene-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.scene-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 2px dashed #cbd5e1;
+}
+
+.mic-indicator {
+  font-size: 2rem;
+  transition: all 0.3s ease;
+  filter: grayscale(100%);
+}
+
+.mic-indicator.active {
+  filter: grayscale(0%);
+  animation: bounce 1s infinite;
+}
+
+.ai-indicator {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+}
+
+.transcript {
+  text-align: left;
+  margin-top: 2rem;
+  padding: 1rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.transcript h3 {
+  margin: 0 0 1rem 0;
+  color: #374151;
+  font-size: 1.1rem;
+}
+
+.transcript-content {
+  color: #6b7280;
+  line-height: 1.6;
+  min-height: 3rem;
+  font-style: italic;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
